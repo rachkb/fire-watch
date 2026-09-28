@@ -1,0 +1,9 @@
+data/*
+!data/.gitkeep
+.streamlit/secrets.toml
+.env
+*.db
+uploads/
+__pycache__/
+.venv/
+.ipynb_checkpoints/
