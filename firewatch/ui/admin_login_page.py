@@ -3,7 +3,7 @@ from datetime import datetime
 
 import streamlit as st
 
-from firewatch.ui import components, data_access
+from firewatch.ui import data_access
 
 
 def render():
@@ -21,18 +21,22 @@ def render():
             st.info(notice)
 
         with st.form("admin_login"):                    # Enter submits the form
-            username = st.text_input("Username")        # matches the schema (no email column)
+            username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             submitted = st.form_submit_button("Login", use_container_width=True)
 
         if submitted:
-            admin_id = data_access.authenticate(username.strip(), password)
-            if admin_id is None:
-                st.error("Invalid username or password.")   # REQ-8.3: generic on purpose
+            try:
+                admin_id = data_access.authenticate(username.strip(), password)
+            except data_access.LoginLocked as e:        # REQ-8.4
+                st.error(f"Too many failed attempts. Try again in {e.minutes} minute(s).")
             else:
-                st.session_state["admin_id"] = admin_id
-                st.session_state["admin_username"] = username.strip()
-                st.session_state["admin_last_activity"] = datetime.now()
-                st.switch_page(st.session_state["pages"]["moderation"])
+                if admin_id is None:
+                    st.error("Invalid username or password.")   # REQ-8.3: generic on purpose
+                else:
+                    st.session_state["admin_id"] = admin_id
+                    st.session_state["admin_username"] = username.strip()
+                    st.session_state["admin_last_activity"] = datetime.now()
+                    st.switch_page(st.session_state["pages"]["moderation"])
 
         st.page_link(st.session_state["pages"]["home"], label="Back to FireWatch", icon="⬅️")

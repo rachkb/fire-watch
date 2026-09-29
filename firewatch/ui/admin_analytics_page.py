@@ -35,7 +35,7 @@ def render():
                "not a measure of overall model accuracy.")              # REQ-10.4
 
     risk = st.selectbox("Risk", ["All", *RISK_LEVELS])                  # REQ-10.2
-    rows = data_access.list_all(risk=None if risk == "All" else risk)[:10]
+    rows = data_access.list_all(risk=None if risk == "All" else risk, limit=10)
 
     heads = st.columns([1, 1.5, 1.5, 1.5, 2])
     for h, label in zip(heads, ["", "Class", "Confidence", "Risk", "Date"]):
