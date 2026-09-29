@@ -1,0 +1,8 @@
+streamlit
+sqlalchemy
+psycopg2-binary   # SQLAlchemy driver for Supabase PostgreSQL
+bcrypt            # salted password hashes (REQ-8.2)
+supabase          # Storage client (private bucket)
+pillow
+numpy
+
