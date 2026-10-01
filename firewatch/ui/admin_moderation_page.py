@@ -11,7 +11,6 @@ def _confirm_remove(sub_id: int, admin_id: int):
     c1, c2 = st.columns(2)
     if c1.button("Delete permanently", type="primary", use_container_width=True):
         data_access.remove(sub_id, admin_id)
-        st.session_state.pop("flag_target", None)
         st.rerun()
     if c2.button("Cancel", use_container_width=True):
         st.rerun()
@@ -52,31 +51,29 @@ def render():
         a1, a2, a3 = c[5].columns(3)
         if a1.button("Approve", key=f"ap_{r['id']}", use_container_width=True):
             data_access.approve(r["id"], admin_id)
-            st.session_state.pop("flag_target", None)
             st.rerun()
         if a2.button("Flag", key=f"fl_{r['id']}", use_container_width=True):
-            st.session_state["flag_target"] = r["id"]
+            _flag_dialog(r, admin_id)
         if a3.button("Remove", key=f"rm_{r['id']}", use_container_width=True):
             _confirm_remove(r["id"], admin_id)
 
-    target = st.session_state.get("flag_target")
-    if target is not None:
-        _flag_panel(target, admin_id)
 
+@st.dialog("Flag submission")
+def _flag_dialog(row: dict, admin_id: int):
+    img, info = st.columns([1, 2], vertical_alignment="center")
+    img.image(row["image_bytes"], use_container_width=True)
+    info.markdown(f"**Submission #{row['id']}**")
+    info.caption(f"Predicted: {row['predicted_class']} ({row['confidence']:.0%}) · "
+                 f"Risk: {row['risk_level']} · Status: {row['status']}")
 
-def _flag_panel(sub_id: int, admin_id: int):
-    st.divider()
-    st.markdown(f"**Flag submission #{sub_id}**")
-    c1, c2 = st.columns(2)
-    reason = c1.selectbox("Reason", FLAG_REASONS)                       # REQ-9.4
-    correct = c2.selectbox("Correct class (optional)", ["Not set", *DISPLAY_CLASS_ORDER])
+    reason = st.selectbox("Reason", FLAG_REASONS)                            # REQ-9.4
+    correct = st.selectbox("Correct class (optional)", ["Not set", *DISPLAY_CLASS_ORDER])
     note = st.text_area("Optional note", placeholder="Optional note...")
-    b1, b2, _ = st.columns([1, 1, 4])
-    if b1.button("Save flag", type="primary"):
-        data_access.flag(sub_id, admin_id, reason,
+
+    b1, b2 = st.columns(2)
+    if b1.button("Save flag", type="primary", use_container_width=True):
+        data_access.flag(row["id"], admin_id, reason,
                          None if correct == "Not set" else correct, note)
-        st.session_state.pop("flag_target", None)
-        st.rerun()
-    if b2.button("Cancel"):
-        st.session_state.pop("flag_target", None)
+        st.rerun()                                   # closes the popup and refreshes the table
+    if b2.button("Cancel", use_container_width=True):
         st.rerun()

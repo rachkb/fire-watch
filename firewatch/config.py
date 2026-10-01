@@ -6,7 +6,7 @@ risk-level rules. The UI and the (future) real inference module should
 both import from here rather than hardcoding these values separately.
 """
 
-CLASS_NAMES = ["Fire", "Non-Fire", "Smoke"]
+CLASS_NAMES = ["Smoke", "Fire", "Non-Fire"]
 
 # Below this confidence, a result is low-confidence and its risk level is
 # forced to "Uncertain" regardless of predicted class (SRS REQ-3.4, REQ-4.2).
@@ -50,9 +50,9 @@ DISCLAIMER_TEXT = (
     "fire alarm or emergency detection service."
 )
 
-INPUT_SIZE = (224, 224)                 # REQ-2.1
-MODEL_PATH = "models/firewatch.keras"   # agree on the filename with the model teammate
-USE_MOCK_MODEL = True                   # set to False when the real model is ready
+INPUT_SIZE = (160, 160)                 
+MODEL_PATH = "models/firewatch_effnet_phase2_BETTER.keras"   
+USE_MOCK_MODEL = False                   
 
 STATUSES = ["Pending", "Approved", "Flagged"]
 FLAG_REASONS = ["Misclassified", "Inappropriate content", "Other"]
@@ -61,4 +61,4 @@ MAX_FAILED_LOGINS = 5                   # REQ-8.4
 LOCKOUT_MINUTES = 15
 SESSION_TIMEOUT_MINUTES = 30            # proposed; SRS 3.8.2 doesn't give a number
 TAGLINE = "Fire & smoke detection"
-DISPLAY_CLASS_ORDER = ["Fire", "Non-Fire", "Smoke"]
+DISPLAY_CLASS_ORDER = ["Smoke", "Fire", "Non-Fire"]

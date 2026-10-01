@@ -56,6 +56,20 @@ def require_admin() -> int:
     return admin_id
 
 
+# ---------- low-confidence wording ----------
+
+def is_low_confidence(confidence: float) -> bool:
+    return float(confidence) < LOW_CONFIDENCE_THRESHOLD
+
+
+def class_label(predicted_class: str, confidence: float) -> str:
+    """Headline text. Low-confidence results read 'Uncertain (leaning Fire, 51%)'
+    so the class is still shown (REQ-3.1) without sounding like a firm verdict."""
+    if is_low_confidence(confidence):
+        return f"Uncertain (leaning {predicted_class}, {float(confidence):.0%})"
+    return f"{predicted_class} ({float(confidence):.0%})"
+
+
 # ---------- risk ----------
 
 def risk_badge(level: str) -> str:
@@ -94,13 +108,20 @@ def result_dialog(result: dict, image, heatmap_fn=None, timestamp=None):
     top_l, top_r = st.columns(2)
     top_l.image(image, use_container_width=True)
     with top_r:
-        st.markdown(f"#### {result['predicted_class'].upper()}")
-        st.caption(f"Confidence: {result['confidence']:.0%}"
-                   + (f" · {timestamp:%Y-%m-%d %H:%M}" if timestamp else ""))
+        low = is_low_confidence(result["confidence"])
+        if low:
+            st.markdown("#### UNCERTAIN")
+            st.caption(f"Leaning {result['predicted_class']} · "
+                       f"Confidence: {result['confidence']:.0%}"
+                       + (f" · {timestamp:%Y-%m-%d %H:%M}" if timestamp else ""))
+        else:
+            st.markdown(f"#### {result['predicted_class'].upper()}")
+            st.caption(f"Confidence: {result['confidence']:.0%}"
+                       + (f" · {timestamp:%Y-%m-%d %H:%M}" if timestamp else ""))
         for name in DISPLAY_CLASS_ORDER:                      # REQ-3.3
             p = float(result["probabilities"][name])
             st.progress(p, text=f"{name}: {p:.0%}")
-        if result["confidence"] < LOW_CONFIDENCE_THRESHOLD:   # REQ-3.4
+        if low:                                               # REQ-3.4
             st.warning("Low Confidence, Manual Review Recommended.")
 
     bot_l, bot_r = st.columns(2)

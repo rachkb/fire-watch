@@ -44,7 +44,7 @@ def render_history():
         with st.container(border=True):
             a, b, c, d = st.columns([1, 3, 1.4, 1.3], vertical_alignment="center")
             a.image(r["image_bytes"], width=64)
-            b.markdown(f"**{r['predicted_class']}** ({r['confidence']:.0%})")
+            b.markdown(f"**{components.class_label(r['predicted_class'], r['confidence'])}**")
             b.caption(f"{r['timestamp']:%Y-%m-%d %H:%M}")
             c.markdown(components.risk_badge(r["risk_level"]), unsafe_allow_html=True)
             if d.button("Details", key=f"det_{r['id']}"):               # REQ-7.4

@@ -2,7 +2,7 @@
 from io import BytesIO
 
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageOps
 
 from firewatch import inference
 from firewatch.config import ALLOWED_UPLOAD_FORMATS, MAX_UPLOAD_SIZE_MB
@@ -28,7 +28,7 @@ def _read_valid_image(file):
     except Exception:
         st.error("This file is not a valid JPEG or PNG image.")
         return None, None
-    return data, img.convert("RGB")
+    return data, ImageOps.exif_transpose(img).convert("RGB")   # upright phone photos
 
 
 def render_upload():
