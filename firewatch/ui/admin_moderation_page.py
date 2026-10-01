@@ -4,6 +4,8 @@ import streamlit as st
 from firewatch.config import DISPLAY_CLASS_ORDER, FLAG_REASONS, RISK_LEVELS, STATUSES
 from firewatch.ui import components, data_access
 
+ACTIONS = ["Approve", "Flag", "Remove"]
+
 
 @st.dialog("Remove submission")
 def _confirm_remove(sub_id: int, admin_id: int):
@@ -16,8 +18,25 @@ def _confirm_remove(sub_id: int, admin_id: int):
         st.rerun()
 
 
+@st.dialog("Submission image")
+def _preview_dialog(row):
+    st.image(row["image_bytes"], use_container_width=True)
+
+
 def _none_if_all(v):
     return None if v == "All" else v
+
+
+def _handle_action(r, admin_id, key):
+    choice = st.session_state[key]
+    st.session_state[key] = None                 # reset so the dropdown shows the placeholder again
+    if choice == "Approve":
+        data_access.approve(r["id"], admin_id)
+        st.rerun()
+    elif choice == "Flag":
+        _flag_dialog(r, admin_id)
+    elif choice == "Remove":
+        _confirm_remove(r["id"], admin_id)
 
 
 def render():
@@ -35,27 +54,34 @@ def render():
     rows = data_access.list_all(_none_if_all(risk), _none_if_all(cls),
                                 _none_if_all(status), d_from, d_to)     # REQ-9.1
 
-    heads = st.columns([1, 1.2, 1.2, 1.2, 1.2, 3.2])
-    for h, label in zip(heads, ["", "Class", "Confidence", "Risk", "Status", "Actions"]):
+    heads = st.columns([1, 1.4, 1.4, 1.4, 1.4, 1.4])
+    for h, label in zip(heads, ["", "Class", "Confidence", "Risk", "Status", "Action"]):
         h.caption(label)
 
     if not rows:
         st.info("No submissions match these filters.")
     for r in rows:
-        c = st.columns([1, 1.2, 1.2, 1.2, 1.2, 3.2], vertical_alignment="center")
-        c[0].image(r["image_bytes"], width=56)
+        c = st.columns([1, 1.4, 1.4, 1.4, 1.4, 1.4], vertical_alignment="center")
+
+        img_c, btn_c = c[0].columns([2, 1])
+        img_c.image(r["image_bytes"], width=56)
+        if btn_c.button("", key=f"prev_{r['id']}", icon=":material/zoom_in:",
+                       help="View full image"):
+            _preview_dialog(r)
+
         c[1].write(r["predicted_class"])
         c[2].write(f"{r['confidence']:.0%}")
         c[3].markdown(components.risk_badge(r["risk_level"]), unsafe_allow_html=True)
         c[4].write(r["status"])
-        a1, a2, a3 = c[5].columns(3)
-        if a1.button("Approve", key=f"ap_{r['id']}", use_container_width=True):
-            data_access.approve(r["id"], admin_id)
-            st.rerun()
-        if a2.button("Flag", key=f"fl_{r['id']}", use_container_width=True):
-            _flag_dialog(r, admin_id)
-        if a3.button("Remove", key=f"rm_{r['id']}", use_container_width=True):
-            _confirm_remove(r["id"], admin_id)
+
+        key = f"act_{r['id']}"
+        c[5].selectbox(
+            "Action", ACTIONS, key=key,
+            index=None,
+            placeholder="Choose action...",
+            label_visibility="collapsed",
+            on_change=_handle_action, args=(r, admin_id, key),
+        )
 
 
 @st.dialog("Flag submission")

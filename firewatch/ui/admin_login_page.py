@@ -12,7 +12,7 @@ def render():
 
     _, mid, _ = st.columns([1, 1, 1])
     with mid:
-        st.markdown("<h3 style='text-align:center'>🔥 FireWatch</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center'> FireWatch</h3>", unsafe_allow_html=True)
         st.markdown("<p style='text-align:center'><b>Admin Login</b><br>"
                     "Enter your credentials to log in</p>", unsafe_allow_html=True)
 

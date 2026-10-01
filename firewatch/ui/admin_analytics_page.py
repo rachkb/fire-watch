@@ -21,8 +21,18 @@ def render():
     left, right = st.columns(2)
     with left.container(border=True):
         tab_class, tab_risk = st.tabs(["By predicted class", "By risk level"])
-        tab_class.bar_chart(pd.Series(s["by_class"]))
-        tab_risk.bar_chart(pd.Series(s["by_risk"]))
+
+        class_df = pd.DataFrame({
+            "Class": list(s["by_class"].keys()),
+            "Count": list(s["by_class"].values()),
+        })
+        tab_class.bar_chart(class_df, x="Class", y="Count")
+
+        risk_df = pd.DataFrame({
+            "Risk level": list(s["by_risk"].keys()),
+            "Count": list(s["by_risk"].values()),
+        })
+        tab_risk.bar_chart(risk_df, x="Risk level", y="Count")
     with right.container(border=True):
         st.markdown("**Administrator-reported errors**")
         m1, m2 = st.columns(2)
