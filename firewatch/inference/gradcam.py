@@ -21,7 +21,7 @@ def compute_gradcam(model, batch: np.ndarray):
     """Returns (heatmap, predicted_index). heatmap is a 2-D float array in 0..1 (5x5 here)."""
     import tensorflow as tf
 
-    base = next(l for l in model.layers if isinstance(l, tf.keras.Model))
+    base = next(l for l in model.layers if isinstance(l, tf.keras.Model) and  "efficientnetv2-b0" in l.name.lower())
     base_idx = model.layers.index(base)
     augment = next((l for l in model.layers[:base_idx] if l.name == "augment"), None)
     post = model.layers[base_idx + 1:]                  # GAP, dropout, dense, dense(softmax)
