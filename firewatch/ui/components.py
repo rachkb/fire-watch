@@ -20,15 +20,15 @@ def _page(name: str):
 def header():
     """Public header: logo, name, tagline, and Admin Login link (REQ-8.1)."""
     left, right = st.columns([5, 1], vertical_alignment="center")
-    left.markdown(f"### 🔥 FireWatch\n{TAGLINE}")
-    right.page_link(_page("login"), label="Admin Login", icon="🔐")
+    left.markdown(f"### FireWatch\n{TAGLINE}")
+    right.page_link(_page("login"), label="Admin Login")
     st.divider()
 
 
 def admin_header(current: str):
     """Admin header with Moderation / Analytics navigation and Log out (Fig 4, 5)."""
     c1, c2, c3, c4 = st.columns([4, 1.3, 1.3, 1], vertical_alignment="center")
-    c1.markdown(f"### 🔥 FireWatch\n{TAGLINE}")
+    c1.markdown(f"### FireWatch\n{TAGLINE}")
     c2.page_link(_page("moderation"), label="Moderation",
                  disabled=(current == "moderation"))
     c3.page_link(_page("analytics"), label="Analytics",
@@ -100,8 +100,8 @@ def disclaimer():
 @st.dialog("Detection result", width="large")
 def result_dialog(result: dict, image, heatmap_fn=None, timestamp=None):
     """
-    Layout follows Fig 2: image + class + probability bars on top,
-    heatmap + risk box below. image may be a PIL image or bytes.
+    Layout follows Fig 2: image + class + probability bars + risk box on top,
+    heatmap below. image may be a PIL image or bytes.
     heatmap_fn=None (history details) means no heatmap, because heatmaps
     are never stored (REQ-6.6).
     """
@@ -123,16 +123,13 @@ def result_dialog(result: dict, image, heatmap_fn=None, timestamp=None):
             st.progress(p, text=f"{name}: {p:.0%}")
         if low:                                               # REQ-3.4
             st.warning("Low Confidence, Manual Review Recommended.")
+        risk_banner(result["risk_level"])                     # moved up, right under probabilities
 
-    bot_l, bot_r = st.columns(2)
-    with bot_l:
-        if heatmap_fn is None:
-            st.caption("Heatmaps are generated when an image is analyzed and are not stored.")
-        elif st.toggle("Show heatmap", value=True):           # REQ-5.3
-            try:
-                st.image(heatmap_fn(), use_container_width=True)
-            except Exception:
-                st.warning("Heatmap unavailable.")            # REQ-5.4
-    with bot_r:
-        risk_banner(result["risk_level"])
+    if heatmap_fn is None:
+        st.caption("Heatmaps are generated when an image is analyzed and are not stored.")
+    elif st.toggle("Show heatmap", value=True):                # REQ-5.3
+        try:
+            st.image(heatmap_fn(), use_container_width=True)
+        except Exception:
+            st.warning("Heatmap unavailable.")                 # REQ-5.4
     disclaimer()
