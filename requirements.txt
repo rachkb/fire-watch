@@ -1,10 +1,11 @@
-streamlit
-sqlalchemy
-psycopg2-binary   # SQLAlchemy driver for Supabase PostgreSQL
-bcrypt            # salted password hashes (REQ-8.2)
-supabase          # Storage client (private bucket)
-pillow
-numpy
-tensorflow-cpu
-keras>=3.13
-matplotlib
+streamlit==1.64.0
+sqlalchemy==2.1.1
+psycopg2-binary==2.9.13   # SQLAlchemy driver for Supabase PostgreSQL
+bcrypt==5.0.0         # salted password hashes (REQ-8.2)
+supabase==2.31.0          # Storage client (private bucket)
+pillow==12.3.0
+pandas==3.0.6
+numpy==2.5.3
+tensorflow-cpu==2.21.0
+keras=3.15.1
+matplotlib==3.11.2
