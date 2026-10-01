@@ -39,9 +39,9 @@ def compute_gradcam(model, batch: np.ndarray):
         probs = final(y, training=False)
         pred = tf.argmax(probs[0])
         if hasattr(final, "kernel"):                    # pre-softmax scores (see fix 1)
-           # score = (tf.matmul(y, final.kernel) + final.bias)[:, pred]
-       score = probs[:, pred]
- else:
+           score = (tf.matmul(y, final.kernel) + final.bias)[:, pred]
+           score = probs[:, pred]
+        else:
             score = probs[:, pred]
 
     grads = tape.gradient(score, conv)
@@ -50,6 +50,8 @@ def compute_gradcam(model, batch: np.ndarray):
 
     if np.ptp(heat) <= 1e-6 * (np.abs(heat).max() + 1e-12):   # same value in every cell
         raise ValueError("Grad-CAM map is flat for this image")
+   
+    print(base.name, heat.shape)
 
     positive = np.maximum(heat, 0)
     if positive.max() > 0:                              # standard Grad-CAM
