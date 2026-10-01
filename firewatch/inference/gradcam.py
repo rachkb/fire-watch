@@ -39,8 +39,9 @@ def compute_gradcam(model, batch: np.ndarray):
         probs = final(y, training=False)
         pred = tf.argmax(probs[0])
         if hasattr(final, "kernel"):                    # pre-softmax scores (see fix 1)
-            score = (tf.matmul(y, final.kernel) + final.bias)[:, pred]
-        else:
+           # score = (tf.matmul(y, final.kernel) + final.bias)[:, pred]
+       score = probs[:, pred]
+ else:
             score = probs[:, pred]
 
     grads = tape.gradient(score, conv)

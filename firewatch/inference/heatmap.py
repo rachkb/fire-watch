@@ -21,6 +21,6 @@ def generate_heatmap(model, image: Image.Image) -> Image.Image:
     h = np.asarray(heat_img, dtype="float32") / 255.0
 
     colored = colormaps["jet"](h)[:, :, :3] * 255
-    alpha = (_MAX_ALPHA * h)[..., np.newaxis]           # opacity follows the heat, so
-    blended = np.asarray(base, dtype="float32") * (1 - alpha) + colored * alpha   # cold areas show the photo
+    alpha = 0.4
+blended = np.asarray(base, dtype="float32") * (1 - alpha) + colored * alpha
     return Image.fromarray(blended.astype("uint8"))
