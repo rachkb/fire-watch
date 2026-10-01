@@ -5,4 +5,6 @@ bcrypt            # salted password hashes (REQ-8.2)
 supabase          # Storage client (private bucket)
 pillow
 numpy
-
+tensorflow-cpu
+keras>=3.13
+matplotlib
